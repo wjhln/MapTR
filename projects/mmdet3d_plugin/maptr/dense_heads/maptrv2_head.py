@@ -361,7 +361,12 @@ class MapTRv2Head(DETRHead):
                 num_pts_per_vec=self.num_pts_per_vec,
         )
 
-        bev_embed,depth, hs, init_reference, inter_references = outputs
+        # Handle different transformer output formats
+        if len(outputs) == 5:
+            bev_embed, depth, hs, init_reference, inter_references = outputs
+        else:
+            bev_embed, hs, init_reference, inter_references = outputs
+            depth = None
         hs = hs.permute(0, 2, 1, 3)
         outputs_classes_one2one = []
         outputs_coords_one2one = []

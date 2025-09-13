@@ -214,6 +214,9 @@ def main():
     prog_bar = mmcv.ProgressBar(len(dataset))
     # import pdb;pdb.set_trace()
     for i, data in enumerate(data_loader):
+        # Close all existing figures to prevent memory leak
+        plt.close('all')
+        
         if ~(data['gt_labels_3d'].data[0][0] != -1).any():
             # import pdb;pdb.set_trace()
             logger.error(f'\n empty gt for index {i}, continue')
@@ -342,10 +345,9 @@ def main():
 
 
         # import pdb;pdb.set_trace()
-        plt.figure(figsize=(2, 4))
-        plt.xlim(pc_range[0], pc_range[3])
-        plt.ylim(pc_range[1], pc_range[4])
-        plt.axis('off')
+        # plt.figure(figsize=(2, 4))
+        # plt.ylim(pc_range[1], pc_range[4])
+        # plt.axis('off')
 
         # visualize pred
         # import pdb;pdb.set_trace()

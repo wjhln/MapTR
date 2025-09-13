@@ -947,7 +947,7 @@ class BEVFormerEncoderDepth(BEVFormerEncoder):
         mlp_input = self.get_mlp_input(camera2ego, camera_intrinsics, post_rots, post_trans)
         depth = self.get_cam_feats(images, mlp_input)
         ret_dict = dict(
-            bev=bev_embed['bev'],
+            bev=bev_embed,
             depth=depth,
         )
         # import ipdb; ipdb.set_trace()

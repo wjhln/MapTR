@@ -116,7 +116,7 @@ class NMSFreeCoder(BaseBBoxCoder):
         cls_scores = cls_scores.sigmoid()
         scores, indexs = cls_scores.view(-1).topk(max_num)
         labels = indexs % self.num_classes
-        bbox_index = indexs // self.num_classes
+        bbox_index = torch.div(indexs, self.num_classes, rounding_mode='floor')
         bbox_preds = bbox_preds[bbox_index]
        
         final_box_preds = denormalize_bbox(bbox_preds, self.pc_range)   
@@ -135,8 +135,11 @@ class NMSFreeCoder(BaseBBoxCoder):
                 thresh_mask = final_scores >= tmp_score
 
         if self.post_center_range is not None:
-            self.post_center_range = torch.tensor(
-                self.post_center_range, device=scores.device)
+            if not isinstance(self.post_center_range, torch.Tensor):
+                self.post_center_range = torch.tensor(
+                    self.post_center_range, device=scores.device)
+            else:
+                self.post_center_range = self.post_center_range.to(scores.device)
             mask = (final_box_preds[..., :3] >=
                     self.post_center_range[:3]).all(1)
             mask &= (final_box_preds[..., :3] <=
@@ -239,7 +242,7 @@ class MapTRNMSFreeCoder(BaseBBoxCoder):
         cls_scores = cls_scores.sigmoid()
         scores, indexs = cls_scores.view(-1).topk(max_num)
         labels = indexs % self.num_classes
-        bbox_index = indexs // self.num_classes
+        bbox_index = torch.div(indexs, self.num_classes, rounding_mode='floor')
         bbox_preds = bbox_preds[bbox_index]
         pts_preds = pts_preds[bbox_index]
        
@@ -263,8 +266,11 @@ class MapTRNMSFreeCoder(BaseBBoxCoder):
                 thresh_mask = final_scores >= tmp_score
 
         if self.post_center_range is not None:
-            self.post_center_range = torch.tensor(
-                self.post_center_range, device=scores.device)
+            if not isinstance(self.post_center_range, torch.Tensor):
+                self.post_center_range = torch.tensor(
+                    self.post_center_range, device=scores.device)
+            else:
+                self.post_center_range = self.post_center_range.to(scores.device)
             mask = (final_box_preds[..., :4] >=
                     self.post_center_range[:4]).all(1)
             mask &= (final_box_preds[..., :4] <=

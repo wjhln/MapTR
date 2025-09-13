@@ -267,7 +267,12 @@ class MapTRHead(DETRHead):
                 prev_bev=prev_bev
         )
 
-        bev_embed, hs, init_reference, inter_references = outputs
+        # Handle different transformer output formats
+        if len(outputs) == 5:
+            bev_embed, depth, hs, init_reference, inter_references = outputs
+        else:
+            bev_embed, hs, init_reference, inter_references = outputs
+            depth = None
         hs = hs.permute(0, 2, 1, 3)
         outputs_classes = []
         outputs_coords = []

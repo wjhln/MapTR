@@ -1,9 +1,11 @@
 # from ..chamfer_dist import ChamferDistance
 import numpy as np
+import warnings
 from shapely.geometry import LineString, Polygon
 from shapely.strtree import STRtree
 from shapely.geometry import CAP_STYLE, JOIN_STYLE
 from scipy.spatial import distance
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="shapely")
 
 
 def custom_polyline_score(pred_lines, gt_lines, linewidth=1., metric='chamfer'):
