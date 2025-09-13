@@ -60,7 +60,7 @@ model = dict(
         num_stages=4,
         out_indices=(3,),
         frozen_stages=-1,
-        norm_cfg=dict(type='SyncBN', requires_grad=True),
+        norm_cfg=dict(type='BN', requires_grad=True),
         norm_eval=False,
         style='pytorch'),
     img_neck=dict(
@@ -231,8 +231,8 @@ test_pipeline = [
 ]
 
 data = dict(
-    samples_per_gpu=24,
-    workers_per_gpu=4,
+    samples_per_gpu=6,
+    workers_per_gpu=6,  # 减少worker数量以降低内存使用
     train=dict(
         type=dataset_type,
         data_root=data_root,
@@ -295,18 +295,25 @@ lr_config = dict(
     warmup_iters=500,
     warmup_ratio=1.0 / 3,
     min_lr_ratio=1e-3)
-total_epochs = 110
+total_epochs = 10
+interval_per_epoch = 325 // data['samples_per_gpu']
 # total_epochs = 50
 # evaluation = dict(interval=1, pipeline=test_pipeline)
-evaluation = dict(interval=2, pipeline=test_pipeline, metric='chamfer')
+evaluation = dict(interval=interval_per_epoch, pipeline=test_pipeline, metric='chamfer')
 
 runner = dict(type='EpochBasedRunner', max_epochs=total_epochs)
 
 log_config = dict(
-    interval=50,
+    interval=interval_per_epoch,
     hooks=[
         dict(type='TextLoggerHook'),
         dict(type='TensorboardLoggerHook')
     ])
+
+# 添加自定义进度条hook
+custom_hooks = [
+    dict(type='CustomProgressBarHook', print_interval=1)  # 每个迭代都更新进度条
+]
+
 fp16 = dict(loss_scale=512.)
-checkpoint_config = dict(interval=5)
+checkpoint_config = dict(interval=interval_per_epoch)
